@@ -90,11 +90,13 @@ struct IndiVariables indi = {
   .g2 = STABILIZATION_INDI_G2_R,
   .gains = {
     .att = {
+      //STABILIZATION_INDI_REF_ERR_P,
       STABILIZATION_INDI_REF_ERR_P,
       STABILIZATION_INDI_REF_ERR_Q,
       STABILIZATION_INDI_REF_ERR_R
     },
     .rate = {
+//      STABILIZATION_INDI_REF_RATE_P,
       STABILIZATION_INDI_REF_RATE_P,
       STABILIZATION_INDI_REF_RATE_Q,
       STABILIZATION_INDI_REF_RATE_R
@@ -314,7 +316,8 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __att
   //If there is a lot of noise on the gyroscope, it might be good to use the filtered value for feedback.
   //Note that due to the delay, the PD controller can not be as aggressive.
 #if STABILIZATION_INDI_FILTER_ROLL_RATE
-  rates_filt_fo.p = (rates_filt_fo.p*3+body_rates->p)/4;
+  // rates_filt_fo.p = (rates_filt_fo.p*3+body_rates->p)/4;
+  rates_filt_fo.p = body_rates->p;
 #else
   rates_filt_fo.p = body_rates->p;
 #endif

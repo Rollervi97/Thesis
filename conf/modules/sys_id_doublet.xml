@@ -55,7 +55,6 @@
     <periodic fun="sys_id_doublet_run()" freq="60" autorun="TRUE"/>
 
     <makefile>
-        <file name="pprz_random.c" dir="math"/>
         <file name="pprz_doublet.c"/>
         <file name="sys_id_doublet.c"/>
     </makefile>

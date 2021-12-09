@@ -6,6 +6,8 @@
 #define SYS_ID_DOUBLET_H
 
 #include "paparazzi.h"
+
+
 extern uint8_t doublet_active;
 extern pprz_t doublet_amplitude;
 
@@ -21,7 +23,8 @@ extern void sys_id_doublet_run(void);
 
 // Handlers for changing gcs variables
 extern void sys_id_doublet_activate_handler(uint8_t activate); // Activate the doublet
-extern void sys_id_doublet_axis_handler(uint8_t axis); // Check if new axis is valid
+extern void sys_id_doublet_axis_handler(uint8_t axis); // Check if new axis
+extern void sys_id_doublet_mod3211_handler(uint8_t mode);
 // Add the current doublet values to the in_cmd values if motors_on is true
 extern void sys_id_doublet_add_values(bool motors_on, bool override_on, pprz_t in_cmd[]);
 

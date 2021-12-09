@@ -25,6 +25,7 @@
 
 #include "std.h"
 #include "math.h"
+#include "pprz_wave.h"
 
 #include "sys_id_wave.h"
 
@@ -42,7 +43,9 @@
 #define WAVE_ENABLED TRUE
 #endif
 
-
+#ifndef PPRZ_MSG_ID_WAVE
+#define PPRZ_MSG_ID_WAVE 257
+#endif
 
 
 static struct wave_t wave_s;
@@ -58,43 +61,38 @@ static const int8_t ACTIVE_WAVE_AXES[] = WAVE_AXES;
 // Chirp and noise values for all axes (indices correspond to the axes given in WAVE_AXES)
 static pprz_t current_wave_values[WAVE_NB_AXES];
 
-static void set_current_wave_val(void){
+static void set_current_wave_values(void){
     if (wave_active){
-        current_wave_values[wave_axis] +=  (int32_t)(wave_amplitude * wave.current_value);
+        current_wave_values[wave_axis] +=  (int32_t)(wave_amplitude * wave_s.current_value);
         wave_s.is_running = true;
     }
     else{
-        for (uint8_i i = 0; i < WAVE_NB_AXES, i++) {
+        for (uint8_t i = 0; i < WAVE_NB_AXES; i++) {
             current_wave_values[i] = 0;
             wave_s.is_running = false;
         }
     }
 }
 static void send_wave(struct transport_tx *trans, struct link_device *dev){
-    pprz_msg_send_WAVE(trans, dev, AC_ID, &wave_active, &wave_s.lag_rad, &wave_s.frequency_hz,
-                       &wave_amplitude, 
-                       &current_wave_values[0],
-                       &current_wave_values[1],
-                       &current_wave_values[2],
-                       &current_wave_values[3]
-                       );
+    pprz_msg_send_WAVE(trans, dev, AC_ID, &wave_active, &wave_axis, &wave_amplitude, &wave_s.lag_rad, &wave_s.frequency_hz,
+                       &current_wave_values[wave_axis]);
 }
 
 static void start_wave(void){
     wave_reset(&wave_s, get_sys_time_float());
     wave_active = true;
-    set_current_wave_val();
+    set_current_wave_values();
     
 }
 
 static void stop_wave(void){
     wave_reset(&wave_s, get_sys_time_float());
     wave_active = false;
-    set_current_wave_val();
+    set_current_wave_values();
     
 }
 
-void sys_id_wave_activate_handler(uint8_t activate){
+extern void sys_id_wave_activate_handler(uint8_t activate){
     wave_active = activate;
     if (wave_active) {
         wave_init(&wave_s, get_sys_time_float(), get_sys_time_float(), frequency_hz_, lag_rad_);
@@ -118,7 +116,15 @@ uint8_t sys_id_wave_running(void)
 extern void sys_id_wave_frequency_hz_set(float frequency_hz_set)
 {
         frequency_hz_ = frequency_hz_set;
+        wave_init(&wave_s, get_sys_time_float(), get_sys_time_float(), frequency_hz_, lag_rad_);
 }
+
+extern void sys_id_wave_lag_rad_set(float lag_rad_set)
+{
+        lag_rad_ = lag_rad_set;
+        wave_init(&wave_s, get_sys_time_float(), get_sys_time_float(), frequency_hz_, lag_rad_);
+}
+
 
 void sys_id_wave_init(void)
 {
@@ -128,22 +134,22 @@ void sys_id_wave_init(void)
     
 }
 
-void sys_id_wave_run(void)
+extern void sys_id_wave_run(void)
 {
 #if WAVE_ENABLED
 
     if (wave_active) {
-        if (!wave_is_running(&wave, get_sys_time_float())) {
+        if (!wave_is_running(&wave_s)) {
             stop_wave();
         } else {
-            wave_update(&wave, get_sys_time_float());
+            wave_update(&wave_s, get_sys_time_float());
             set_current_wave_values();
         }
     }
 #endif
 }
 
-void sys_id_wave_add_values(bool motors_on, bool override_on, pprz_t in_cmd[])
+extern void sys_id_wave_add_values(bool motors_on, bool override_on, pprz_t in_cmd[])
 {
     (void)(override_on); // Suppress unused parameter warnings
 

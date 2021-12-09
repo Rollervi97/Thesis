@@ -38,7 +38,7 @@
                 <dl_setting min="0"    max="9600" step="100"  shortname="Amplitude"      var="wave_amplitude"               type="int32_t" module="system_identification/sys_id_wave"/>
                 <dl_setting min="0"    max="5"    step="1"    shortname="Wave axis"     var="wave_axis"                    type="uint8_t" module="system_identification/sys_id_wave" handler="axis_handler"/>
                 <dl_setting min="0"    max="100"  step="0.5"  shortname="frenquency_hz"       var="frequency_hz_"                type="float"   module="system_identification/sys_id_wave" handler="frequency_hz_set"/>
-                <dl_setting min="0"    max="6.28"  step="0.0174"  shortname="lag_rad_"   var="lag_rad_"              type="float"   module="system_identification/sys_id_wave"/>
+                <dl_setting min="0"    max="6.28"  step="0.0174"  shortname="lag_rad_"   var="lag_rad_"              type="float"   module="system_identification/sys_id_wave" handler="lag_rad_set"/>
             </dl_settings>
         </dl_settings>
     </settings>

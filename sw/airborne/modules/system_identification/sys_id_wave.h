@@ -4,9 +4,7 @@
 
 #ifndef SYS_ID_WAVE_H
 #define SYS_ID_WAVE_H
-
-#include "std.h"
-#include "math.h"
+#endif // SYS_ID_WAVE_H
 
 #include "paparazzi.h"
 
@@ -22,12 +20,13 @@ extern uint8_t wave_axis;
 extern void sys_id_wave_init(void);
 extern void sys_id_wave_run(void);
 
-extern void sys_id_wave_frequency_hz_set(void);
+extern void sys_id_wave_frequency_hz_set(float frequency_hz_set);
+extern void sys_id_wave_lag_rad_set(float lag_rad_set);
 
 // handlers for changing in GCS variables
-extern void sys_id_wave_activate_handler(void);
-extern void sys_id_wave_add_values(void);
+extern void sys_id_wave_activate_handler(uint8_t activate);
+extern void sys_id_wave_add_values(bool motors_on, bool override_on, pprz_t in_cmd[]);
 
 
 
-#endif
+

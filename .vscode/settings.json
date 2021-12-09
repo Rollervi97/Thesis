@@ -11,6 +11,7 @@
     "files.associations": {
         "type_traits": "cpp",
         "cmath": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "tensor": "cpp"
     },
 }

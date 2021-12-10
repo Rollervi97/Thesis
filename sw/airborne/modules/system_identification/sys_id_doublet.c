@@ -53,8 +53,8 @@ uint8_t doublet_mode_3211 = false;
 uint8_t doublet_axis = 0;
 
 pprz_t doublet_amplitude = 0;
-float doublet_length_s = 20;
-float doublet_extra_waiting_time_s = 5;
+float doublet_length_s = 20.0f;
+float doublet_extra_waiting_time_s = 5.0f;
 
 
 
@@ -66,7 +66,8 @@ static pprz_t current_doublet_values[DOUBLET_NB_AXES];
 static void set_current_doublet_values(void)
 {
     if (doublet_active) {
-        current_doublet_values[doublet_axis] += (int32_t)(doublet_amplitude * doublet.current_value);
+        current_doublet_values[doublet_axis] = (int32_t)(doublet_amplitude * doublet.current_value);
+        
     } else {
         for (uint8_t i = 0; i < DOUBLET_NB_AXES; i++) {
             current_doublet_values[i] = 0;
@@ -77,7 +78,7 @@ static void set_current_doublet_values(void)
 static void send_doublet(struct transport_tx *trans, struct link_device *dev){
     pprz_msg_send_DOUBLET(trans, dev, AC_ID, &doublet_active,
                         &doublet_axis, &doublet_amplitude,
-                        &current_doublet_values[doublet_axis]);
+                        &current_doublet_values[doublet_axis], &doublet_mode_3211);
 }
 
 static void start_doublet(void)
@@ -94,7 +95,11 @@ static void stop_doublet(void)
     set_current_doublet_values();
 }
 
-extern void sys_id_doublet_activate_handler(uint8_t activate)
+uint8_t sys_id_doublet_running(void){
+    return doublet_active;
+}
+
+void sys_id_doublet_activate_handler(uint8_t activate)
 {
     doublet_active = activate;
     if (doublet_active) {
@@ -105,17 +110,18 @@ extern void sys_id_doublet_activate_handler(uint8_t activate)
     }
 }
 
-extern void sys_id_doublet_axis_handler(uint8_t axis)
+void sys_id_doublet_axis_handler(uint8_t axis)
 {
     if (axis < DOUBLET_NB_AXES) {
         doublet_axis = axis;
     }
 }
 
-extern void sys_id_doublet_mod3211_handler(uint8_t mode){
+void sys_id_doublet_mod3211_handler(uint8_t mode){
     doublet_mode_3211 = mode;
 }
-extern void sys_id_doublet_init(void)
+
+void sys_id_doublet_init(void)
 {
     doublet_init(&doublet, doublet_length_s, doublet_extra_waiting_time_s, get_sys_time_float(), doublet_mode_3211);
 
@@ -129,10 +135,8 @@ extern void sys_id_doublet_init(void)
     }
 }
 
-extern void sys_id_doublet_run(void)
+void sys_id_doublet_run(void)
 {
-#if DOUBLET_ENABLED
-
     if (doublet_active) {
         if (!doublet_is_running(&doublet, get_sys_time_float())) {
             stop_doublet();
@@ -142,10 +146,10 @@ extern void sys_id_doublet_run(void)
         }
     }
     
-#endif
+
 }
 
-extern void sys_id_doublet_add_values(bool motors_on, bool override_on, pprz_t in_cmd[])
+void sys_id_doublet_add_values(bool motors_on, bool override_on, pprz_t in_cmd[])
 {
     (void)(override_on); // Suppress unused parameter warnings
 

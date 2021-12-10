@@ -43,9 +43,6 @@
 #define WAVE_ENABLED TRUE
 #endif
 
-#ifndef PPRZ_MSG_ID_WAVE
-#define PPRZ_MSG_ID_WAVE 257
-#endif
 
 
 static struct wave_t wave_s;
@@ -63,7 +60,7 @@ static pprz_t current_wave_values[WAVE_NB_AXES];
 
 static void set_current_wave_values(void){
     if (wave_active){
-        current_wave_values[wave_axis] +=  (int32_t)(wave_amplitude * wave_s.current_value);
+        current_wave_values[wave_axis] = (int16_t)(wave_amplitude * wave_s.current_value);
         wave_s.is_running = true;
     }
     else{
@@ -92,7 +89,7 @@ static void stop_wave(void){
     
 }
 
-extern void sys_id_wave_activate_handler(uint8_t activate){
+void sys_id_wave_activate_handler(uint8_t activate){
     wave_active = activate;
     if (wave_active) {
         wave_init(&wave_s, get_sys_time_float(), get_sys_time_float(), frequency_hz_, lag_rad_);
@@ -102,24 +99,26 @@ extern void sys_id_wave_activate_handler(uint8_t activate){
     }
 }
 
-extern void sys_id_wave_axis_handler(uint8_t axis)
+void sys_id_wave_axis_handler(uint8_t axis)
 {
     if (axis < WAVE_NB_AXES) {
         wave_axis = axis;
     }
 }
-uint8_t sys_id_wave_running(void)
-{
+
+
+uint8_t sys_id_wave_running(void){
     return wave_active;
 }
 
-extern void sys_id_wave_frequency_hz_set(float frequency_hz_set)
+
+void sys_id_wave_frequency_hz_set(float frequency_hz_set)
 {
         frequency_hz_ = frequency_hz_set;
         wave_init(&wave_s, get_sys_time_float(), get_sys_time_float(), frequency_hz_, lag_rad_);
 }
 
-extern void sys_id_wave_lag_rad_set(float lag_rad_set)
+void sys_id_wave_lag_rad_set(float lag_rad_set)
 {
         lag_rad_ = lag_rad_set;
         wave_init(&wave_s, get_sys_time_float(), get_sys_time_float(), frequency_hz_, lag_rad_);
@@ -134,9 +133,9 @@ void sys_id_wave_init(void)
     
 }
 
-extern void sys_id_wave_run(void)
+void sys_id_wave_run(void)
 {
-#if WAVE_ENABLED
+// #if WAVE_ENABLED
 
     if (wave_active) {
         if (!wave_is_running(&wave_s)) {
@@ -146,10 +145,10 @@ extern void sys_id_wave_run(void)
             set_current_wave_values();
         }
     }
-#endif
+// #endif
 }
 
-extern void sys_id_wave_add_values(bool motors_on, bool override_on, pprz_t in_cmd[])
+void sys_id_wave_add_values(bool motors_on, bool override_on, pprz_t in_cmd[])
 {
     (void)(override_on); // Suppress unused parameter warnings
 

@@ -72,7 +72,7 @@ float doublet_update(struct doublet_t *doublet, float current_time_s){
     }
 
     float t = current_time_s - doublet->t0; // since the start of the doublet
-    if ((t>=doublet->t0) & (t<=doublet->tf)){
+    if ((t>=0) & (t<=doublet->tf)){
         if (doublet->mod3211){
             if (((t >= doublet->t1) & (t <= doublet->t2)) | ((t >= doublet->t3) & (t <= doublet->t4))){
                 doublet->current_value = 1.0f;

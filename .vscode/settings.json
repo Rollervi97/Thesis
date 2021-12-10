@@ -12,6 +12,7 @@
         "type_traits": "cpp",
         "cmath": "cpp",
         "limits": "cpp",
-        "tensor": "cpp"
+        "tensor": "cpp",
+        "chrono": "c"
     },
 }

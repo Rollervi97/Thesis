@@ -42,6 +42,10 @@
 #include "filters/low_pass_filter.h"
 #include "filters/notch_filter.h"
 #include "modules/system_identification/sys_id_chirp.h"
+#include "modules/system_identification/sys_id_doublet.h"
+#include "modules/system_identification/sys_id_wave.h"
+
+#include "stdio.h"
 
 bool use_notch = false;
 
@@ -509,14 +513,18 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __att
     indi.u_in.p = indi.u[0].o[0] + indi.du.p;
     indi.u_in.q = indi.u[1].o[0] + indi.du.q;
 
-    if (sys_id_chirp_running())
+    if ((sys_id_doublet_running()) || (sys_id_chirp_running()) || (sys_id_wave_running()))
     {
+      printf("Either chirp, doublet or wave is running \n");
       indi.u_in.r = 0.0;
     } 
     else 
     {
-    indi.u_in.r = indi.u[2].o[0] + indi.du.r;
+      printf("Normal INDI is running \n");
+      indi.u_in.r = indi.u[2].o[0] + indi.du.r;
     }
+
+    printf("u_in_r: %f \n", indi.u_in.r);
 
     // only run the estimation if the commands are not zero.
     lms_estimation();
@@ -555,18 +563,44 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __att
 void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight __attribute__((unused)))
 {
   /* attitude error                          */
-  struct Int32Quat att_err;
-  struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
-  int32_quat_inv_comp(&att_err, att_quat, &quat_sp);
-  /* wrap it in the shortest direction       */
-  int32_quat_wrap_shortest(&att_err);
-  int32_quat_normalize(&att_err);
+  // struct Int32Quat att_err;
+  // struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
+  // int32_quat_inv_comp(&att_err, att_quat, &quat_sp);
+  // /* wrap it in the shortest direction       */
+  // int32_quat_wrap_shortest(&att_err);
+  // int32_quat_normalize(&att_err);
+
+  struct FloatQuat att_err;
+  struct FloatQuat *att_quat = stateGetNedToBodyQuat_f();
+  struct FloatQuat quat_sp_f;
+
+  QUAT_FLOAT_OF_BFP(quat_sp_f, quat_sp);
+  float_quat_inv_comp_norm_shortest(&att_err, att_quat, &quat_sp_f);
+
+  struct FloatVect3 att_fb;
+
+#if TILT_TWIST_CTRL
+  struct FloatQuat tilt;
+  struct FloatQuat twist;
+  float_quat_tilt_twist(&tilt, &twist, &att_err);
+  att_fb.x = tilt.qx;
+  att_fb.y = tilt.qy;
+  att_fb.z = twist.qz;
+#else
+  att_fb.x = att_err.qx;
+  att_fb.y = att_err.qy;
+  att_fb.z = att_err.qz;
+#endif
 
   struct FloatRates rate_sp;
   // Divide by rate gain to make it equivalent to a parallel structure
-  rate_sp.p = indi.gains.att.p * QUAT1_FLOAT_OF_BFP(att_err.qx) / indi.gains.rate.p;
-  rate_sp.q = indi.gains.att.q * QUAT1_FLOAT_OF_BFP(att_err.qy) / indi.gains.rate.q;
-  rate_sp.r = indi.gains.att.r * QUAT1_FLOAT_OF_BFP(att_err.qz) / indi.gains.rate.r;
+  // rate_sp.p = indi.gains.att.p * QUAT1_FLOAT_OF_BFP(att_err.qx) / indi.gains.rate.p;
+  // rate_sp.q = indi.gains.att.q * QUAT1_FLOAT_OF_BFP(att_err.qy) / indi.gains.rate.q;
+  // rate_sp.r = indi.gains.att.r * QUAT1_FLOAT_OF_BFP(att_err.qz) / indi.gains.rate.r;
+
+  rate_sp.p = indi.gains.att.p * att_fb.x / indi.gains.rate.p;
+  rate_sp.q = indi.gains.att.q * att_fb.y / indi.gains.rate.q;
+  rate_sp.r = indi.gains.att.r * att_fb.z / indi.gains.rate.r;
 
   /* compute the INDI command */
   stabilization_indi_rate_run(rate_sp, in_flight);

@@ -24,6 +24,7 @@
  */
 
 #include "std.h"
+#include "stdio.h"
 
 #include "sys_id_chirp.h"
 #include "pprz_chirp.h"
@@ -57,7 +58,7 @@
 
 
 static struct chirp_t chirp;
-uint8_t chirp_active = false;
+uint8_t chirp_active = FALSE;
 uint8_t chirp_axis = 0;
 pprz_t chirp_amplitude = 0;
 float chirp_noise_stdv_onaxis_ratio = 0.1;
@@ -78,7 +79,11 @@ static pprz_t current_chirp_values[CHIRP_NB_AXES];
 
 static void set_current_chirp_values(void)
 {
-  if (chirp_active) {
+    // initializing at zero the chirp input for every axis
+    for (uint8_t i = 0; i < CHIRP_NB_AXES; i++) {
+      current_chirp_values[i] = 0;
+    }  
+    if (chirp_active) {
 #if CHIRP_USE_NOISE
 
     float amplitude, noise;
@@ -112,14 +117,14 @@ static void send_chirp(struct transport_tx *trans, struct link_device *dev)
 static void start_chirp(void)
 {
   chirp_reset(&chirp, get_sys_time_float());
-  chirp_active = true;
+  chirp_active = TRUE;
   set_current_chirp_values();
 }
 
 static void stop_chirp(void)
 {
   chirp_reset(&chirp, get_sys_time_float());
-  chirp_active = false;
+  chirp_active = FALSE;
   set_current_chirp_values();
 }
 

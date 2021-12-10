@@ -20,6 +20,9 @@ extern uint8_t wave_axis;
 extern void sys_id_wave_init(void);
 extern void sys_id_wave_run(void);
 
+extern void sys_id_wave_axis_handler(uint8_t axis);
+extern uint8_t sys_id_wave_running(void);
+
 extern void sys_id_wave_frequency_hz_set(float frequency_hz_set);
 extern void sys_id_wave_lag_rad_set(float lag_rad_set);
 

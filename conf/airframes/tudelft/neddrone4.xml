@@ -93,8 +93,8 @@
     </module>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
-    <!-- <module name="sys_id_chirp"/> -->
-    <!-- <module name="sys_id_doublet"/> -->
+    <module name="sys_id_chirp"/>
+    <module name="sys_id_doublet"/>
     <!--    <module name="gps"           type="ublox"/>-->
     <!--    <module name="gps"           type="ubx_ucenter"/>-->
     <module name="sys_id_wave"/>
@@ -195,8 +195,8 @@
   </section>
 
   <command_laws>
-    <!-- <call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,values)"/> -->
-    <!-- <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,values)"/> -->
+    <call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,values)"/>
+    <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,values)"/>
     <call fun="sys_id_wave_add_values(autopilot_get_motors_on(),FALSE,values)"/>
     <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <let var="th_hold"     value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
@@ -293,6 +293,8 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <define name="TILT_TWIST_CTRL" value="TRUE"/>
+    
     <!-- control effectiveness (hover) -->
     <define name="G1_P" value="0.0030"/>
     <define name="G1_Q" value="0.0035"/>
@@ -320,9 +322,9 @@
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="5.0"/>
-    <define name="FILT_CUTOFF_RDOT" value="5.0"/>
+    <define name="FILT_CUTOFF_RDOT" value="1.0"/>
     <define name="ESTIMATION_FILT_CUTOFF" value="5.0"/>
-    <define name="FILT_CUTOFF_R" value="20.0"/>
+    <define name="FILT_CUTOFF_R" value="10.0"/>
 
     <!-- notch filter parameters -->
     <define name="RB_pitch" value="1.25" />
@@ -379,8 +381,8 @@
 
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1"  value="AP_MODE_FORWARD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_CARE_FREE_DIRECT"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
     <define name="MODE_STARTUP"  value="AP_MODE_NAV"/>
   </section>
 
